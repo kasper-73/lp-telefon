@@ -1,0 +1,12 @@
+
+body { background:#111; color:#eee; font-family:Arial; padding:20px; }
+.login-box { max-width:300px; margin:auto; padding:20px; background:#222; border-radius:8px; }
+input { width:100%; padding:10px; margin:8px 0; background:#333; border:none; color:#fff; }
+button { width:100%; padding:10px; background:#5a8dee; color:white; border:none; }
+.error { color:#ff5555; }
+.row { display:flex; align-items:center; padding:10px 0; border-bottom:1px solid #333; }
+.dot { width:14px; height:14px; border-radius:50%; margin-right:10px; }
+.free { background:#00c851; }
+.busy { background:#ff4444; }
+.offline { background:#888; }
+.unknown { background:#ffaa00; }

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="/static/style.css">
+<title>LP Telefon</title>
+</head>
+<body>
+<h2>📞 LP Telefon</h2>
+<div class="list">
+{% for phone, st in data.items() %}
+<div class="row">
+<span class="dot {{ st }}"></span>
+<span class="txt">{{ phone }}</span>
+<span class="status">{{ st }}</span>
+</div>
+{% endfor %}
+</div>
+<script>
+setTimeout(()=>location.reload(),5000);
+</script>
+</body>
+</html>
