@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, send_from_directory
+from flask import Flask, render_template, request, jsonify
 import json
 import os
 
@@ -6,61 +6,48 @@ app = Flask(__name__)
 
 STATUS_FILE = "status.json"
 
-# Sikrer at status-filen findes
-if not os.path.exists(STATUS_FILE):
-    with open(STATUS_FILE, "w", encoding="utf-8") as f:
-        json.dump([], f)
-
-#########################################
-# LOGIN SIDE
-#########################################
-
+# ------------------------------
+# Forside – login eller redirect
+# ------------------------------
 @app.route("/")
-def login():
+def home():
     return render_template("login.html")
 
-#########################################
-# STATUS SIDE
-#########################################
-
+# ------------------------------
+# Statusside (webvisning)
+# ------------------------------
 @app.route("/status")
 def status_page():
-    return render_template("status.html")
+    # Læs status fra JSON-filen hvis den findes
+    if os.path.exists(STATUS_FILE):
+        with open(STATUS_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    else:
+        data = []
 
-#########################################
-# API: Hent status.json
-#########################################
+    return render_template("status.html", users=data)
 
-@app.route("/get_status")
-def get_status():
-    if not os.path.exists(STATUS_FILE):
-        return {"error": "status file missing"}, 404
-    return send_from_directory(".", STATUS_FILE)
-
-#########################################
-# API: Upload status.json (fra lokalt script)
-#########################################
-
-API_KEY = "LP_TELEFON_84JH29XAQW"   # <<< du kan ændre denne
-
+# ------------------------------
+# API-endpoint til upload fra lokalt Python-script
+# ------------------------------
 @app.route("/upload_status", methods=["POST"])
 def upload_status():
-    key = request.headers.get("X-API-KEY")
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"error": "No JSON received"}), 400
 
-    if key != API_KEY:
-        return {"error": "Unauthorized"}, 401
+        # Gem JSON i filen
+        with open(STATUS_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
 
-    data = request.json
+        return jsonify({"success": True}), 200
 
-    with open(STATUS_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-    return {"status": "OK"}, 200
-
-
-#########################################
-# RUN (ikke brugt på Render)
-#########################################
-
+# ------------------------------
+# Flask starter ikke i debug i Render (gunicorn bruges)
+# ------------------------------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
